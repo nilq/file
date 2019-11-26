@@ -1,0 +1,44 @@
+Path: struct {
+    route: str
+}
+
+File: struct {
+    path: Path
+    content: str?
+}
+
+implement Path {
+    from: fun(path: str) -> Path {
+        new Path {
+            route: path
+        }
+    }
+
+    to_file: fun(self) -> File {
+        new File {
+            path: self
+        }
+    }
+}
+
+implement File {
+    from: fun(path: str) -> File {
+        new File {
+            path: Path from(path)
+        }
+    }
+
+    read: fun(self) -> str {
+        open: extern fun(str, str) -> any = "io.open"
+
+        f := open(self path route, "rb")
+
+        close: extern fun(any) = "f.close"
+        read:  extern fun(any, str) -> str = "f.read"
+
+        self content = read(f, "*all")
+        close(f)
+
+        self content
+    }
+}
